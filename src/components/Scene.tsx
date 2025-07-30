@@ -7,6 +7,10 @@ export function Scene() {
   const [leftRotating, setLeftRotating] = useState(false);
   const [leftPosition, setLeftPosition] = useState<[number, number, number]>([0, 0, 0]);
   const [leftScale, setLeftScale] = useState(1);
+  const [meshMode, setMeshMode] = useState(false);
+  const [meshOpacity, setMeshOpacity] = useState(0.5);
+  const [rotationSpeed, setRotationSpeed] = useState(0.01);
+  const [rotationAxis, setRotationAxis] = useState<'x' | 'y' | 'z'>('x');
 
   return (
     <div className="w-full h-screen bg-space-black">
@@ -36,10 +40,10 @@ export function Scene() {
           <button
             onClick={() => setLeftRotating(!leftRotating)}
             className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
-              leftRotating ? 'bg-space-blue text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+              leftRotating ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
             }`}
           >
-            Rotate Model
+            {leftRotating ? 'Stop Rotation' : 'Start Rotation'}
           </button>
         </div>
 
@@ -76,6 +80,89 @@ export function Scene() {
         </div>
       </div>
 
+      {/* Mesh Settings Panel */}
+      <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-10 bg-gray-900 bg-opacity-90 p-4 rounded-lg">
+        <h3 className="text-white text-sm font-bold mb-3">Mesh Settings</h3>
+        
+        {/* Mesh Mode Toggle */}
+        <div className="flex items-center space-x-2 mb-3">
+          <label className="text-white text-xs">Mesh Mode:</label>
+          <button
+            onClick={() => setMeshMode(!meshMode)}
+            className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
+              meshMode ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+            }`}
+          >
+            {meshMode ? 'ON' : 'OFF'}
+          </button>
+        </div>
+
+        {/* Rotation Axis Selection */}
+        <div className="mb-3">
+          <label className="text-white text-xs block mb-1">Rotation Axis:</label>
+          <div className="flex space-x-2">
+            <button
+              onClick={() => setRotationAxis('x')}
+              className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
+                rotationAxis === 'x' ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+              }`}
+            >
+              X-Axis
+            </button>
+            <button
+              onClick={() => setRotationAxis('y')}
+              className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
+                rotationAxis === 'y' ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+              }`}
+            >
+              Y-Axis
+            </button>
+            <button
+              onClick={() => setRotationAxis('z')}
+              className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
+                rotationAxis === 'z' ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+              }`}
+            >
+              Z-Axis
+            </button>
+          </div>
+        </div>
+
+        {/* Rotation Speed Slider */}
+        <div className="mb-3">
+          <label className="text-white text-xs block mb-1">Rotation Speed: {rotationSpeed.toFixed(3)}</label>
+          <input
+            type="range"
+            min="0"
+            max="0.05"
+            step="0.001"
+            value={rotationSpeed}
+            onChange={(e) => setRotationSpeed(parseFloat(e.target.value))}
+            className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider"
+            style={{
+              background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${(rotationSpeed / 0.05) * 100}%, #374151 ${(rotationSpeed / 0.05) * 100}%, #374151 100%)`
+            }}
+          />
+        </div>
+
+        {/* Mesh Opacity Slider */}
+        <div className="mb-3">
+          <label className="text-white text-xs block mb-1">Mesh Opacity: {meshOpacity.toFixed(2)}</label>
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.01"
+            value={meshOpacity}
+            onChange={(e) => setMeshOpacity(parseFloat(e.target.value))}
+            className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider"
+            style={{
+              background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${meshOpacity * 100}%, #374151 ${meshOpacity * 100}%, #374151 100%)`
+            }}
+          />
+        </div>
+      </div>
+
       {/* Single 3D Scene */}
       <Canvas
         camera={{ 
@@ -105,7 +192,10 @@ export function Scene() {
             <ModelViewer 
               modelPath="/endurance_from_interstellar_lowpoly.glb" 
               autoRotate={leftRotating}
-              rotationSpeed={0.01}
+              rotationSpeed={rotationSpeed}
+              rotationAxis={rotationAxis}
+              meshMode={meshMode}
+              meshOpacity={meshOpacity}
             />
           </Suspense>
         </group>
